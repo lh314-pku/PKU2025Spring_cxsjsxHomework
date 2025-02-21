@@ -12,14 +12,14 @@ private:
 	string name;
 	int age;
 	int num;
-	int average_grade;
-	int grades[4];
+	float average_grade;
+	float grades[4];
 public:
 	void input() {
 		getline(cin, name, ',');
 		char ch;
 		cin >> age >> ch >> num;
-		int a = 0;
+		float a = 0;
 		for (int i = 0; i < 4; i++) {
 			cin >> ch >> a;
 			grades[i] = a;
@@ -27,7 +27,7 @@ public:
 	}
 
 	void calculate() {
-		int sum = 0;
+		float sum = 0;
 		for (int i = 0; i < 4; i++) {
 			sum += grades[i];
 		}
