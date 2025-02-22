@@ -10,7 +10,7 @@ struct People {
 	string name;
 	int HP;
 
-	People(string n, int hp):name(n), HP(hp){}
+	People(string n, int hp) :name(n), HP(hp) {}
 }; // 武士结构体，包含 其种类和初始生命值 及其 构造函数
 
 class HeadQuarters {
@@ -26,9 +26,9 @@ private:
 	int position;          // 当前制作进度
 public:
 	HeadQuarters(string s, int n, vector<People> shunxu) {
-		side = s;
-		LP = n;
-		peoples = shunxu;
+		this->side = s;
+		this->LP = n;
+		this->peoples = shunxu;
 		for (int i = 0; i < 5; i++) {
 			nums.push_back(0);
 			makeable.push_back(true);
@@ -39,8 +39,12 @@ public:
 		position = 0;
 	}// 构造函数
 
+	~HeadQuarters() {
+
+	}
+
 	void birth() {
-		int i = 1;
+		int i = 0;
 		do {
 			makeable[position] = (peoples[position].HP <= LP);
 			if (makeable[position]) {
@@ -72,9 +76,9 @@ public:
 			output = false;
 		}
 		else if (!stop) {
-			cout << tick << ' ' << side << ' ' << peoples[position].name << ' ';
-			cout << turn << " born with strength " << peoples[position].HP << ',';
-			cout << nums[position] << ' ' << peoples[position].name << " in " << side << " headquarter" << endl;
+			cout << tick << ' ' << side << ' ' << peoples[position].name << ' ' << turn << " born with strength " << peoples[position].HP << ',' << nums[position] << ' ' << peoples[position].name << " in " << side << " headquarter" << endl;
+			// 注：一定要用 cout 或者 printf 一次性输出
+			// 否则会 WA 的（你猜我怎么知道）
 			if (position >= 4) {
 				position = 0;
 			}
