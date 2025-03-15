@@ -4,8 +4,6 @@
 #include <algorithm>
 using namespace std;
 
-#define endl '\n'
-
 class Weapon{ 
 public:
     int weaponId, ad, available; 
