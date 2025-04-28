@@ -5,19 +5,7 @@
 #include <algorithm>
 using namespace std;
 // 在此处补充你的代码
-struct Student 
-{
-	string name;
-	int score;
-};
-template <class T>
-void Print(T first,T last) {
-	for(;first!= last; ++ first)
-		cout << * first << ",";
-	cout << endl;
-}
-// 定义一个模板 MyMultimap，用于实现类似于 multimap 的操作
-template<class Key, class Value, class Compare=greater<Key>>
+template<class Key, class Value, class Compare=less<Key>>
 class MyMultimap {
 public:
     using iterator = typename multimap<Key, Value, Compare>::iterator;
@@ -58,6 +46,18 @@ public:
         mmap.clear();
     }
 };
+struct Student 
+{
+	string name;
+	int score;
+};
+template <class T>
+void Print(T first,T last) {
+	for(;first!= last; ++ first)
+		cout << * first << ",";
+	cout << endl;
+}
+// 定义一个模板 MyMultimap，用于实现类似于 multimap 的操作
 
 int main()
 {
