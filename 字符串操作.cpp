@@ -1,159 +1,121 @@
 #include <iostream>
-#include <string>
 #include <vector>
+#include <string>
 #include <sstream>
 #include <cctype>
-#include <algorithm>
-
+#include <cstdlib>
 using namespace std;
 
-// 辅助函数：判断字符串是否为数字
-bool isInteger(const string &str) {
-    if (str.empty()) return false;
-    for (char c : str) {
+vector<string> strs;
+
+int findStr(const string& s, const string& content, bool reverse) {
+    if (reverse) {
+        size_t pos = content.rfind(s);
+        return pos == string::npos ? content.length() : pos;
+    } else {
+        size_t pos = content.find(s);
+        return pos == string::npos ? content.length() : pos;
+    }
+}
+
+bool isInteger(const string& s) {
+    for (char c : s) {
         if (!isdigit(c)) return false;
     }
-    return true;
+    return true && !s.empty();
 }
 
-// copy 操作
-string copy(const string &s, int x, int l) {
-    return s.substr(x, l);
-}
+string evalExpression(const string& expr);
 
-// add 操作
-string add(const string &s1, const string &s2) {
-    if (isInteger(s1) && isInteger(s2)) {
-        // 转换为整数做加法
-        int num1 = stoi(s1);
-        int num2 = stoi(s2);
-        return to_string(num1 + num2);
+string processAdd(const string& S1, const string& S2) {
+    string left = evalExpression(S1);
+    string right = evalExpression(S2);
+    if (isInteger(left) && isInteger(right)) {
+        int result = stoi(left) + stoi(right);
+        return to_string(result);
+    } else {
+        return left + right;
     }
-    // 字符串连接
-    return s1 + s2;
 }
 
-// find 操作
-int find(const string &s, const string &sub) {
-    size_t pos = s.find(sub);
-    return pos == string::npos ? s.size() : pos;
+string processCopy(int n, int x, int l) {
+    return strs[n - 1].substr(x, l);
 }
 
-// rfind 操作
-int rfind(const string &s, const string &sub) {
-    size_t pos = s.rfind(sub);
-    return pos == string::npos ? s.size() : pos;
+int processFind(string s, int n, bool reverse) {
+    string target = evalExpression(s);
+    return findStr(target, strs[n - 1], reverse);
 }
 
-// insert 操作
-void insert(string &target, const string &s, int pos) {
-    target.insert(pos, s);
-}
+void processCommands(const string& command);
 
-// reset 操作
-void reset(string &target, const string &s) {
-    target = s;
-}
+string evalExpression(const string& expr) {
+    stringstream ss(expr);
+    string token;
+    ss >> token;
 
-// parseNumber：解析数字表达式
-int parseNumber(const string &exp, const vector<string> &strings);
-
-// parseString：解析字符串表达式
-string parseString(const string &exp, const vector<string> &strings) {
-    // 如果是 copy 表达式
-    if (exp.substr(0, 4) == "copy") {
-        stringstream ss(exp.substr(5));
+    if (token == "copy") {
         int n, x, l;
         ss >> n >> x >> l;
-        const string &target = strings[n - 1];
-        x = parseNumber(to_string(x), strings);
-        l = parseNumber(to_string(l), strings);
-        return copy(target, x, l);
+        return processCopy(n, x, l);
+    } else if (token == "add") {
+        string S1, S2;
+        ss >> S1 >> S2;
+        return processAdd(S1, S2);
+    } else {
+        return token; // raw string
     }
-
-    // 如果是 add 表达式
-    if (exp.substr(0, 3) == "add") {
-        stringstream ss(exp.substr(4));
-        string s1, s2;
-        ss >> s1 >> s2;
-        s1 = parseString(s1, strings);
-        s2 = parseString(s2, strings);
-        return add(s1, s2);
-    }
-
-    // 直接返回字符串
-    return exp;
 }
 
-// parseNumber：解析数字表达式
-int parseNumber(const string &exp, const vector<string> &strings) {
-    // 如果是 find 表达式
-    if (exp.substr(0, 4) == "find") {
-        stringstream ss(exp.substr(5));
-        string s;
-        int n;
-        ss >> s >> n;
-        s = parseString(s, strings);
-        n = parseNumber(to_string(n), strings);
-        const string &target = strings[n - 1];
-        return find(target, s);
-    }
+void processCommands(const string& command) {
+    stringstream ss(command);
+    string op;
+    ss >> op;
 
-    // 如果是 rfind 表达式
-    if (exp.substr(0, 5) == "rfind") {
-        stringstream ss(exp.substr(6));
-        string s;
-        int n;
-        ss >> s >> n;
-        s = parseString(s, strings);
-        n = parseNumber(to_string(n), strings);
-        const string &target = strings[n - 1];
-        return rfind(target, s);
+    if (op == "print") {
+        int n; ss >> n;
+        cout << strs[n - 1] << endl;
+    } else if (op == "printall") {
+        for (const string& str : strs) {
+            cout << str << endl;
+        }
+    } else if (op == "insert") {
+        string S; int n, x;
+        ss >> S >> n >> x;
+        string toInsert = evalExpression(S);
+        strs[n - 1].insert(x, toInsert);
+    } else if (op == "reset") {
+        string S; int n;
+        ss >> S >> n;
+        strs[n - 1] = evalExpression(S);
+    } else if (op == "find") {
+        string S; int n;
+        ss >> S >> n;
+        cout << processFind(S, n, false) << endl;
+    } else if (op == "rfind") {
+        string S; int n;
+        ss >> S >> n;
+        cout << processFind(S, n, true) << endl;
+    } else if (op == "over") {
+        return;
     }
-
-    // 直接把字符串转成整数
-    return stoi(exp);
 }
 
 int main() {
     int n;
     cin >> n;
-    vector<string> strings(n);
+    cin.ignore();
 
-    // 输入字符串
+    strs.resize(n);
     for (int i = 0; i < n; ++i) {
-        cin >> strings[i];
+        getline(cin, strs[i]);
     }
 
     string command;
-    while (cin >> command) {
-        if (command == "over") {
-            break;
-        } else if (command == "insert") {
-            string s, exp;
-            int N, X;
-            cin >> s >> exp >> X;
-            N = parseNumber(exp, strings);
-            const string &target = strings[N - 1];
-            X = parseNumber(to_string(X), strings);
-            insert(strings[N - 1], parseString(s, strings), X);
-        } else if (command == "reset") {
-            string s, exp;
-            int N;
-            cin >> s >> exp;
-            N = parseNumber(exp, strings);
-            reset(strings[N - 1], parseString(s, strings));
-        } else if (command == "print") {
-            int N;
-            cin >> N;
-            cout << strings[N - 1] << endl;
-        } else if (command == "printall") {
-            for (const string &s : strings) {
-                cout << s << endl;
-            }
-        }
+    while (getline(cin, command)) {
+        if (command == "over") break;
+        processCommands(command);
     }
 
     return 0;
 }
- 
